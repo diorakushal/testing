@@ -16,26 +16,31 @@ st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered"
 # ========================
 # 🔐 Auth Setup (v0.3.2+)
 # ========================
-hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # hash for 'test123'
+import streamlit_authenticator as stauth
+
+hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # test123
 
 credentials = {
-    "usernames": {
-        "kushal": {
-            "email": "kushal@example.com",
-            "name": "Kushal Diora",
-            "password": hashed_passwords[0],
+    "credentials": {
+        "usernames": {
+            "kushal": {
+                "email": "kushal@example.com",
+                "name": "Kushal Diora",
+                "password": hashed_passwords[0],
+            }
         }
     }
 }
 
 authenticator = stauth.Authenticate(
-    credentials=credentials,
+    credentials=credentials['credentials'],
     cookie_name='smartcard_auth',
     key='smartcard_token',
     cookie_expiry_days=1
 )
 
-name, auth_status, username = authenticator.login("Login", location="main")
+auth_status, username = authenticator.login(location="main", label="Login")
+
 
 if auth_status is False:
     st.error("❌ Incorrect username or password.")
