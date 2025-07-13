@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import io
 from requests.auth import HTTPBasicAuth
 
-# Set page config early
+# Set Streamlit page config
 st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
 
 # ========================
@@ -24,14 +24,13 @@ credentials = {
     }
 }
 authenticator = stauth.Authenticate(
-    credentials=credentials,
-    cookie_name='smartcard_auth',
-    key='smartcard_token',
+    credentials,
+    "smartcard_auth",
+    "smartcard_token",
     cookie_expiry_days=1
 )
 
-# ✅ FIXED login syntax
-name, auth_status, username = authenticator.login(location="main", label="Login")
+name, auth_status, username = authenticator.login("Login", location="main")
 
 if auth_status is False:
     st.error("❌ Incorrect username or password.")
@@ -40,7 +39,6 @@ elif auth_status is None:
     st.warning("🔐 Please enter your credentials.")
     st.stop()
 
-# ✅ Authenticated
 authenticator.logout("Logout", location="sidebar")
 st.sidebar.success(f"✅ Logged in as {name}")
 
