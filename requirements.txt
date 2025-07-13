@@ -1,6 +1,5 @@
 streamlit
-streamlit-authenticator
+streamlit-authenticator==0.2.2
 pandas
 requests
 matplotlib
-streamlit-authenticator==0.2.2
