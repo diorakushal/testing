@@ -21,26 +21,23 @@ import streamlit_authenticator as stauth
 hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # test123
 
 credentials = {
-    "credentials": {
-        "usernames": {
-            "kushal": {
-                "email": "kushal@example.com",
-                "name": "Kushal Diora",
-                "password": hashed_passwords[0],
-            }
+    "usernames": {
+        "kushal": {
+            "email": "kushal@example.com",
+            "name": "Kushal Diora",
+            "password": hashed_passwords[0],
         }
     }
 }
 
 authenticator = stauth.Authenticate(
-    credentials=credentials['credentials'],
+    credentials=credentials,
     cookie_name='smartcard_auth',
     key='smartcard_token',
     cookie_expiry_days=1
 )
 
 auth_status, username = authenticator.login(location="main", label="Login")
-
 
 if auth_status is False:
     st.error("❌ Incorrect username or password.")
@@ -50,7 +47,8 @@ elif auth_status is None:
     st.stop()
 
 authenticator.logout("Logout", location="sidebar")
-st.sidebar.success(f"✅ Logged in as {name}")
+st.sidebar.success(f"✅ Logged in as {username}")
+
 
 # ========================
 # 📁 Load or Create Card Data
