@@ -16,7 +16,7 @@ st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered"
 # ========================
 # 🔐 Auth Setup (v0.3.2+)
 # ========================
-hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # password: test123
+hashed_passwords = stauth.Hasher(['test123']).generate()  # hash the password here to avoid issues
 
 credentials = {
     "usernames": {
@@ -35,8 +35,7 @@ authenticator = stauth.Authenticate(
     cookie_expiry_days=1
 )
 
-
-auth_status, username = authenticator.login(location="main", label="Login")
+name, auth_status, username = authenticator.login("Login", location="main")
 
 if auth_status is False:
     st.error("❌ Incorrect username or password.")
@@ -46,7 +45,7 @@ elif auth_status is None:
     st.stop()
 
 authenticator.logout("Logout", location="sidebar")
-st.sidebar.success(f"✅ Logged in as {username}")
+st.sidebar.success(f"✅ Logged in as {name}")
 
 # ========================
 # 📁 Load or Create Card Data
@@ -79,7 +78,7 @@ user_tokens = list(users.keys())
 # =======================
 # 🚀 Simulate Transaction
 # =======================
-st.title("📿 Smart Card Checkout Simulator")
+st.title("📟 Smart Card Checkout Simulator")
 st.header("🔪 Simulate Transaction")
 
 with st.form("checkout_form"):
@@ -253,7 +252,7 @@ if view_cards_submitted:
             st.info("This user has no saved cards.")
         else:
             for card in cards:
-                st.subheader(f"📿 {card['card_name']}")
+                st.subheader(f"📟 {card['card_name']}")
                 token_masked = f"••••_{card['token'][-1]}"
                 st.write(f"🔑 Token: `{token_masked}`")
 
