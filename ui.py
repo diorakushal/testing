@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 import io
 from requests.auth import HTTPBasicAuth
 
-# Set Streamlit page config
+# ========================
+# 📄 Page Config
+# ========================
 st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
 
 # ========================
@@ -23,14 +25,16 @@ credentials = {
         }
     }
 }
+
 authenticator = stauth.Authenticate(
-    credentials,
-    "smartcard_auth",
-    "smartcard_token",
+    credentials=credentials,
+    cookie_name='smartcard_auth',
+    key='smartcard_token',
     cookie_expiry_days=1
 )
 
-name, auth_status, username = authenticator.login(location="main", label="Login")
+# ✅ Login (updated for v0.3.2+)
+auth_status, username = authenticator.login(location="main", label="Login")
 
 if auth_status is False:
     st.error("❌ Incorrect username or password.")
@@ -39,11 +43,12 @@ elif auth_status is None:
     st.warning("🔐 Please enter your credentials.")
     st.stop()
 
+# ✅ Authenticated
 authenticator.logout("Logout", location="sidebar")
-st.sidebar.success(f"✅ Logged in as {name}")
+st.sidebar.success(f"✅ Logged in as {username}")
 
 # ========================
-# 🔧 Load User Card Data
+# 📁 Load or Create Card Data
 # ========================
 BASE_DIR = os.getcwd()
 USER_CARDS_PATH = os.path.join(BASE_DIR, "data", "user_cards.json")
@@ -181,7 +186,7 @@ if history_submitted:
         st.error(f"⚠️ Request failed: {e}")
 
 # ===============================
-# 📊 Analytics & Export Section
+# 📊 Analytics & Export Logs
 # ===============================
 st.header("📊 Analytics & Export Logs")
 with st.form("analytics_form"):
