@@ -31,7 +31,7 @@ authenticator = stauth.Authenticate(
 )
 
 # ✅ FIXED login syntax
-name, auth_status, username = authenticator.login("main")
+name, auth_status, username = authenticator.login(location="main", label="Login")
 
 if auth_status is False:
     st.error("❌ Incorrect username or password.")
