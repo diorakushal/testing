@@ -16,7 +16,7 @@ st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered"
 # ========================
 # 🔐 Auth Setup (v0.3.2+)
 # ========================
-hashed_passwords = stauth.Hasher(['test123']).generate()  # hash the password here to avoid issues
+hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # hash for 'test123'
 
 credentials = {
     "usernames": {
