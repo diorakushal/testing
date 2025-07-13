@@ -14,40 +14,37 @@ from requests.auth import HTTPBasicAuth
 st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
 
 # ========================
-# 🔐 Auth Setup (v0.3.2+)
+# 🔐 Auth Setup for v0.2.2
 # ========================
-import streamlit_authenticator as stauth
-
-hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # test123
+hashed_passwords = stauth.Hasher(['test123']).generate()
 
 credentials = {
     "usernames": {
         "kushal": {
-            "email": "kushal@example.com",
             "name": "Kushal Diora",
-            "password": hashed_passwords[0],
+            "password": hashed_passwords[0]
         }
     }
 }
 
 authenticator = stauth.Authenticate(
-    credentials=credentials,
-    cookie_name='smartcard_auth',
-    key='smartcard_token',
+    credentials,
+    "smartcard_auth",  # cookie name
+    "smartcard_token", # key
     cookie_expiry_days=1
 )
 
-auth_status, username = authenticator.login(location="main", label="Login")
+name, auth_status, username = authenticator.login("Login", "main")
 
-if auth_status is False:
+if auth_status == False:
     st.error("❌ Incorrect username or password.")
     st.stop()
-elif auth_status is None:
+elif auth_status == None:
     st.warning("🔐 Please enter your credentials.")
     st.stop()
 
-authenticator.logout("Logout", location="sidebar")
-st.sidebar.success(f"✅ Logged in as {username}")
+authenticator.logout("Logout", "sidebar")
+st.sidebar.success(f"✅ Logged in as {name}")
 
 
 # ========================
