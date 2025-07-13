@@ -17,24 +17,24 @@ st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered"
 # 🔐 Auth Setup (v0.3.2+)
 # ========================
 hashed_passwords = ['$2b$12$LQv6p0PK9ktArZPVXQsjWeAAFCD2nLftrar4uQDVuHYbYxpyzKqke']  # password: test123
+
 credentials = {
-    "credentials": {
-        "usernames": {
-            "kushal": {
-                "email": "kushal@example.com",
-                "name": "Kushal Diora",
-                "password": hashed_passwords[0],
-            }
+    "usernames": {
+        "kushal": {
+            "email": "kushal@example.com",
+            "name": "Kushal Diora",
+            "password": hashed_passwords[0],
         }
     }
 }
 
 authenticator = stauth.Authenticate(
-    credentials=credentials['credentials'],
+    credentials=credentials,
     cookie_name='smartcard_auth',
     key='smartcard_token',
     cookie_expiry_days=1
 )
+
 
 auth_status, username = authenticator.login(location="main", label="Login")
 
