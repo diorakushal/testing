@@ -7,20 +7,22 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 from router.reward_optimizer import get_reward_score
 
+# === Init ===
 app = Flask(__name__)
 load_dotenv()
 
-# 📂 Paths
+# === Paths ===
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_PATH = os.path.join(BASE_DIR, "data", "transactions.log")
-USER_CARDS_PATH = os.path.join(BASE_DIR, "data", "user_cards.json")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+LOG_PATH = os.path.join(DATA_DIR, "transactions.log")
+USER_CARDS_PATH = os.path.join(DATA_DIR, "user_cards.json")
 
-# ✅ Ensure log file exists
-os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)
+# Ensure data directory and log file exist
+os.makedirs(DATA_DIR, exist_ok=True)
 if not os.path.exists(LOG_PATH):
     open(LOG_PATH, "w").close()
 
-# 🔐 Auth
+# === Auth ===
 EXPECTED_USERNAME = os.getenv("USERNAME", "Gateway JIT Funding")
 EXPECTED_PASSWORD = os.getenv("PASSWORD", "Kushal@13Kushal@13Kushal@13")
 
@@ -41,7 +43,7 @@ def require_basic_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-# 🔀 Load user card data dynamically
+# === Load User Cards ===
 def load_user_cards():
     try:
         with open(USER_CARDS_PATH) as f:
@@ -50,9 +52,8 @@ def load_user_cards():
         print(f"❌ Error loading user_cards.json: {e}")
         return {}
 
-# ============================
-# 🚀 /api/funding (Webhook)
-# ============================
+# === Routes ===
+
 @app.route('/api/funding', methods=['POST'])
 @require_basic_auth
 def handle_funding():
@@ -106,9 +107,6 @@ def handle_funding():
     else:
         return jsonify({"error": "No eligible card found"}), 400
 
-# ============================
-# 🧲 /route_transaction (UI)
-# ============================
 @app.route('/route_transaction', methods=['POST'])
 def route_transaction():
     data = request.get_json()
@@ -147,9 +145,6 @@ def route_transaction():
     else:
         return jsonify({"error": "No eligible card found"}), 400
 
-# =============================
-# 📖 /api/history (GET)
-# =============================
 @app.route('/api/history', methods=['GET'])
 @require_basic_auth
 def get_transaction_history():
@@ -173,16 +168,11 @@ def get_transaction_history():
         "transactions": recent[:10]
     })
 
-# ============================
-# 💓 /health (GET)
-# ============================
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "ok", "timestamp": datetime.utcnow().isoformat()})
 
-# ============================
-# ❌ Error Handlers
-# ============================
+# === Error Handlers ===
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Route not found"}), 404
@@ -191,9 +181,7 @@ def not_found(e):
 def server_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
-# ============================
-# 🚀 Launch App + Print Routes
-# ============================
+# === Dev mode ===
 def print_routes():
     print("\n📋 Registered routes:")
     for rule in app.url_map.iter_rules():
