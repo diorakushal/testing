@@ -14,7 +14,7 @@ from requests.auth import HTTPBasicAuth
 st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
 
 # ========================
-# 🔐 Auth Setup for v0.2.2
+# 🔐 Auth Setup
 # ========================
 hashed_passwords = stauth.Hasher(['test123']).generate()
 
@@ -29,8 +29,8 @@ credentials = {
 
 authenticator = stauth.Authenticate(
     credentials,
-    "smartcard_auth",  # cookie name
-    "smartcard_token", # key
+    "smartcard_auth",
+    "smartcard_token",
     cookie_expiry_days=1
 )
 
@@ -46,12 +46,10 @@ elif auth_status == None:
 authenticator.logout("Logout", "sidebar")
 st.sidebar.success(f"✅ Logged in as {name}")
 
-
 # ========================
 # 📁 Load or Create Card Data
 # ========================
-BASE_DIR = os.getcwd()
-USER_CARDS_PATH = os.path.join(BASE_DIR, "data", "user_cards.json")
+USER_CARDS_PATH = os.path.join("data", "user_cards.json")
 
 if not os.path.exists(USER_CARDS_PATH):
     os.makedirs(os.path.dirname(USER_CARDS_PATH), exist_ok=True)
@@ -75,6 +73,9 @@ with open(USER_CARDS_PATH) as f:
 
 user_tokens = list(users.keys())
 
+# === Replace with live backend URL ===
+BASE_API = "https://testing-1-92pt.onrender.com"
+
 # =======================
 # 🚀 Simulate Transaction
 # =======================
@@ -92,7 +93,7 @@ if submitted:
     st.info("Routing transaction...")
     try:
         resp = requests.post(
-            "http://127.0.0.1:5000/route_transaction",
+            f"{BASE_API}/route_transaction",
             headers={"Content-Type": "application/json"},
             json={
                 "user_token": user_token,
@@ -161,7 +162,7 @@ with st.form("view_history_form"):
 if history_submitted:
     try:
         resp = requests.get(
-            "http://127.0.0.1:5000/api/history",
+            f"{BASE_API}/api/history",
             params={"user_token": user_token_history},
             auth=HTTPBasicAuth("Gateway JIT Funding", "Kushal@13Kushal@13Kushal@13")
         )
@@ -196,7 +197,7 @@ with st.form("analytics_form"):
 if analytics_submitted:
     try:
         resp = requests.get(
-            "http://127.0.0.1:5000/api/history",
+            f"{BASE_API}/api/history",
             params={"user_token": user_token_analytics},
             auth=HTTPBasicAuth("Gateway JIT Funding", "Kushal@13Kushal@13Kushal@13")
         )
