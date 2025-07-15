@@ -46,7 +46,7 @@ def require_basic_auth(f):
 # === Load User Cards ===
 def load_user_cards():
     try:
-        with open(USER_CARDS_PATH) as f:
+        with open(USER_CARDS_PATH, "r") as f:
             return json.load(f)
     except Exception as e:
         print(f"❌ Error loading user_cards.json: {e}")
@@ -58,10 +58,10 @@ def load_user_cards():
 @require_basic_auth
 def handle_funding():
     print("📬 Webhook hit!")
-    data = request.json
+    data = request.json or {}
     txn = data.get('transaction', {})
     mid = txn.get('mid', {})
-    mcc = str(mid.get('mcc')).strip() if 'mcc' in mid else None
+    mcc = str(mid.get('mcc')).strip() if mid.get('mcc') else None
     merchant = mid.get('merchant_name', 'Unknown')
     amount = float(txn.get('amount', 0))
     user_token = data.get("user_token", "user_123")
@@ -95,8 +95,11 @@ def handle_funding():
             "reward_percent": best_reward,
             "card_token": best_card['token']
         }
-        with open(LOG_PATH, "a") as logfile:
-            logfile.write(json.dumps(log_entry) + "\n")
+        try:
+            with open(LOG_PATH, "a") as logfile:
+                logfile.write(json.dumps(log_entry) + "\n")
+        except Exception as e:
+            print(f"❌ Error writing to log: {e}")
 
         return jsonify({
             "funding": {"amount": amount, "currency_code": "USD"},
@@ -104,12 +107,12 @@ def handle_funding():
             "user_token": user_token,
             "state": "APPROVED"
         })
-    else:
-        return jsonify({"error": "No eligible card found"}), 400
+
+    return jsonify({"error": "No eligible card found"}), 400
 
 @app.route('/route_transaction', methods=['POST'])
 def route_transaction():
-    data = request.get_json()
+    data = request.get_json() or {}
     user_token = data.get("user_token")
     amount = data.get("amount")
     mcc = str(data.get("mcc")).strip() if data.get("mcc") else None
@@ -142,8 +145,8 @@ def route_transaction():
             "mcc": mcc,
             "merchant": merchant
         })
-    else:
-        return jsonify({"error": "No eligible card found"}), 400
+
+    return jsonify({"error": "No eligible card found"}), 400
 
 @app.route('/api/history', methods=['GET'])
 @require_basic_auth
