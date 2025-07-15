@@ -3,3 +3,4 @@ streamlit-authenticator==0.2.2
 pandas
 requests
 matplotlib
+python-dotenv
