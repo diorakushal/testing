@@ -138,10 +138,6 @@ if add_submitted:
         if len(bin_value) == 6:
             bin_data = lookup_bin(bin_value)
             if bin_data:
-                bank = bin_data.get("bank", {}).get("name", "Unknown Bank")
-                brand = bin_data.get("brand", "Unknown Card")
-                card_name = f"{bank} {brand}".strip()
-                st.success(f"🔍 Detected card: {card_name}")
 
                 matched = reward_db.get(card_name)
                 if matched:
