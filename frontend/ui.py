@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import io
 from requests.auth import HTTPBasicAuth
+from bin_lookup import lookup_bin
 
 # ========================
 # 📄 Page Config
@@ -50,30 +51,24 @@ st.sidebar.success(f"✅ Logged in as {name}")
 # 📁 Load or Create Card Data
 # ========================
 USER_CARDS_PATH = os.path.join("data", "user_cards.json")
+REWARDS_DB_PATH = "rewards_db.json"
 
 if not os.path.exists(USER_CARDS_PATH):
     os.makedirs(os.path.dirname(USER_CARDS_PATH), exist_ok=True)
     with open(USER_CARDS_PATH, "w") as f:
-        json.dump({
-            "user_123": [
-                {
-                    "card_name": "Wells Fargo Reflect",
-                    "token": "Wells_Fargo_Reflect_Card_668",
-                    "rewards": {
-                        "default": 3.0,
-                        "Grocery Stores": 3.0,
-                        "Restaurants": 2.0
-                    }
-                }
-            ]
-        }, f, indent=2)
+        json.dump({"user_123": []}, f, indent=2)
 
 with open(USER_CARDS_PATH) as f:
     users = json.load(f)
 
 user_tokens = list(users.keys())
 
-# === Replace with live backend URL ===
+if os.path.exists(REWARDS_DB_PATH):
+    with open(REWARDS_DB_PATH) as f:
+        reward_db = json.load(f)
+else:
+    reward_db = {}
+
 BASE_API = "https://testing-1-92pt.onrender.com"
 
 # =======================
@@ -121,41 +116,57 @@ if submitted:
         st.error(f"⚠️ Request failed: {e}")
 
 # =========================
-# ➕ Add New Card (Enhanced)
+# ➕ Add New Card with BIN Lookup
 # =========================
 st.header("➕ Add New Card")
 with st.form("add_card_form"):
-    user_token_add = st.selectbox("Select User to Add Card", user_tokens, key="add_user")
-    card_name = st.text_input("Card Name", placeholder="e.g. Chase Freedom Flex")
-    card_token = st.text_input("Card Token", placeholder="e.g. Chase_Flex_123")
-    default_reward = st.number_input("Default Reward (%)", min_value=0.0, step=0.1)
-    custom_categories = st.text_input(
-        "Custom Rewards by Category",
-        placeholder="e.g. Grocery Stores:4, Restaurants:3"
-    )
+    user_token_add = st.selectbox("Select User", user_tokens, key="add_user")
+    name_on_card = st.text_input("Name on Card", placeholder="e.g. Kushal Diora")
+    card_number = st.text_input("Card Number (only first 6 digits used for BIN lookup)", placeholder="e.g. 414709")
+    expiration = st.text_input("Expiration Date", placeholder="MM/YY")
+    cvv = st.text_input("CVV", type="password", placeholder="***")
+    card_token = st.text_input("Card Token (nickname)", placeholder="e.g. Chase_Flex_123")
     add_submitted = st.form_submit_button("Add Card")
 
 if add_submitted:
     try:
+        # Use BIN (first 6 digits) to identify card
+        bin_value = card_number[:6]
+        card_name = "Unknown Card"
+        rewards = {"default": 1.0}
+
+        if len(bin_value) == 6:
+            bin_data = lookup_bin(bin_value)
+            if bin_data:
+                bank = bin_data.get("bank", {}).get("name", "Unknown Bank")
+                brand = bin_data.get("brand", "Unknown Card")
+                card_name = f"{bank} {brand}".strip()
+                st.success(f"🔍 Detected card: {card_name}")
+
+                matched = reward_db.get(card_name)
+                if matched:
+                    rewards.update(matched)
+                    st.json(matched)
+                else:
+                    st.warning("No reward structure found in DB for this card.")
+            else:
+                st.warning("BIN lookup failed.")
+        else:
+            st.error("Please enter at least the first 6 digits of the card.")
+
         new_card = {
             "card_name": card_name,
             "token": card_token,
-            "rewards": {"default": default_reward}
+            "name_on_card": name_on_card,
+            "expiration": expiration,
+            "cvv": "***",  # Store masked; not used
+            "rewards": rewards
         }
 
-        # Parse custom rewards if provided
-        if custom_categories:
-            for pair in custom_categories.split(","):
-                if ":" in pair:
-                    key, val = pair.strip().split(":")
-                    new_card["rewards"][key.strip()] = float(val.strip())
-
-        # Add to user card list
         users[user_token_add].append(new_card)
         with open(USER_CARDS_PATH, "w") as f:
             json.dump(users, f, indent=2)
-
-        st.success(f"✅ Added card '{card_name}' with {len(new_card['rewards'])} reward categories.")
+        st.success(f"✅ Card '{card_name}' added and rewards attached.")
     except Exception as e:
         st.error(f"❌ Failed to add card: {e}")
 
