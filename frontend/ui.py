@@ -121,15 +121,18 @@ if submitted:
         st.error(f"⚠️ Request failed: {e}")
 
 # =========================
-# ➕ Add New Card
+# ➕ Add New Card (Enhanced)
 # =========================
 st.header("➕ Add New Card")
 with st.form("add_card_form"):
     user_token_add = st.selectbox("Select User to Add Card", user_tokens, key="add_user")
-    card_name = st.text_input("Card Name")
-    card_token = st.text_input("Card Token")
+    card_name = st.text_input("Card Name", placeholder="e.g. Chase Freedom Flex")
+    card_token = st.text_input("Card Token", placeholder="e.g. Chase_Flex_123")
     default_reward = st.number_input("Default Reward (%)", min_value=0.0, step=0.1)
-    custom_categories = st.text_input("Custom Rewards (e.g. Grocery Stores:4, Restaurants:3)")
+    custom_categories = st.text_input(
+        "Custom Rewards by Category",
+        placeholder="e.g. Grocery Stores:4, Restaurants:3"
+    )
     add_submitted = st.form_submit_button("Add Card")
 
 if add_submitted:
@@ -139,15 +142,20 @@ if add_submitted:
             "token": card_token,
             "rewards": {"default": default_reward}
         }
+
+        # Parse custom rewards if provided
         if custom_categories:
             for pair in custom_categories.split(","):
-                key, val = pair.strip().split(":")
-                new_card["rewards"][key.strip()] = float(val)
+                if ":" in pair:
+                    key, val = pair.strip().split(":")
+                    new_card["rewards"][key.strip()] = float(val.strip())
 
+        # Add to user card list
         users[user_token_add].append(new_card)
         with open(USER_CARDS_PATH, "w") as f:
             json.dump(users, f, indent=2)
-        st.success(f"✅ Added card '{card_name}' for {user_token_add}")
+
+        st.success(f"✅ Added card '{card_name}' with {len(new_card['rewards'])} reward categories.")
     except Exception as e:
         st.error(f"❌ Failed to add card: {e}")
 
