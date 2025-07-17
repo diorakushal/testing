@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # Inject custom style from the correct path
-with open("frontend/style.css") as f:
+with open("style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
