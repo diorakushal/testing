@@ -10,17 +10,16 @@ from requests.auth import HTTPBasicAuth
 from bin_lookup import lookup_bin
 
 # ========================
-# 📄 Page Config + Styles
+# 📄 Page Config + Styling
 # ========================
-st.set_page_config(
-    page_title="Smart Card Checkout Simulator",
-    layout="centered",
-    initial_sidebar_state="expanded"
-)
+st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
 
-# Inject custom style from the correct path
-with open("style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# Load custom CSS if it exists
+try:
+    with open("style.css") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+except FileNotFoundError:
+    st.warning("⚠️ style.css not found — using default Streamlit theme.")
 
 
 # ========================
