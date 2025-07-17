@@ -10,9 +10,18 @@ from requests.auth import HTTPBasicAuth
 from bin_lookup import lookup_bin
 
 # ========================
-# 📄 Page Config
+# 📄 Page Config + Styles
 # ========================
-st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
+st.set_page_config(
+    page_title="Smart Card Checkout Simulator",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
+
+# Inject custom style
+with open("style.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 
 # ========================
 # 🔐 Auth Setup
