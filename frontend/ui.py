@@ -74,7 +74,7 @@ BASE_API = "https://testing-1-92pt.onrender.com"
 # =======================
 # 🚀 Simulate Transaction
 # =======================
-st.title("📟 Smart Card Checkout Simulator")
+st.title("📏 Smart Card Checkout Simulator")
 st.header("🔪 Simulate Transaction")
 
 with st.form("checkout_form"):
@@ -130,7 +130,6 @@ with st.form("add_card_form"):
 
 if add_submitted:
     try:
-        # Use BIN (first 6 digits) to identify card
         bin_value = card_number[:6]
         card_name = "Unknown Card"
         rewards = {"default": 1.0}
@@ -138,13 +137,27 @@ if add_submitted:
         if len(bin_value) == 6:
             bin_data = lookup_bin(bin_value)
             if bin_data:
+                scheme = bin_data.get("scheme", "").title()
+                bank = bin_data.get("bank", {}).get("name", "")
+                brand = bin_data.get("brand", "")
+                card_name = f"{bank} {brand}".strip() or scheme or "Unknown Card"
+
+                normalize = {
+                    "Chase Bank Freedom Flex": "Chase Freedom Flex",
+                    "Wells Fargo Bank, N.A. World Elite Mastercard Card": "Wells Fargo Autograph",
+                    "American Express": "Amex Gold",
+                    "Discover Card": "Discover it Cashback",
+                    "Capital One, National Association Visa Traditional": "Capital One SavorOne"
+                }
+                card_name = normalize.get(card_name, card_name)
 
                 matched = reward_db.get(card_name)
                 if matched:
                     rewards.update(matched)
+                    st.success(f"🔍 Matched card: {card_name}")
                     st.json(matched)
                 else:
-                    st.warning("No reward structure found in DB for this card.")
+                    st.warning(f"No reward structure found in DB for card: `{card_name}`")
             else:
                 st.warning("BIN lookup failed.")
         else:
@@ -155,7 +168,7 @@ if add_submitted:
             "token": card_token,
             "name_on_card": name_on_card,
             "expiration": expiration,
-            "cvv": "***",  # Store masked; not used
+            "cvv": "***",
             "rewards": rewards
         }
 
