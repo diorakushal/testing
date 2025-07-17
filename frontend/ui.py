@@ -9,18 +9,21 @@ import io
 from requests.auth import HTTPBasicAuth
 from bin_lookup import lookup_bin
 
+import os
+
 # ========================
 # 📄 Page Config + Styling
 # ========================
 st.set_page_config(page_title="Smart Card Checkout Simulator", layout="centered")
 
-# Load custom CSS if it exists
+# Resolve correct path whether running locally or on Streamlit Cloud
+css_path = os.path.join(os.path.dirname(__file__), "style.css")
+
 try:
-    with open("style.css") as f:
+    with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 except FileNotFoundError:
     st.warning("⚠️ style.css not found — using default Streamlit theme.")
-
 
 # ========================
 # 🔐 Auth Setup

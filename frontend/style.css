@@ -1,0 +1,61 @@
+/* Import modern clean font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    color: #1f2937; /* Gray-800 */
+    background-color: #f9fafb; /* Gray-50 */
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-weight: 700;
+    color: #111827; /* Gray-900 */
+}
+
+/* Subheaders & Labels */
+label, .stTextInput > label, .stSelectbox > label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151; /* Gray-700 */
+}
+
+/* Input fields */
+input, textarea, select {
+    border: 1px solid #d1d5db; /* Gray-300 */
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.95rem;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #111827; /* Dark Gray */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.3s ease;
+}
+.stButton > button:hover {
+    background-color: #1f2937; /* Darker gray */
+}
+
+/* Success & Warning Boxes */
+.stAlert-success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border-left: 4px solid #10b981;
+}
+.stAlert-warning {
+    background-color: #fffbeb;
+    color: #92400e;
+    border-left: 4px solid #fbbf24;
+}
+
+/* Sidebar */
+.css-6qob1r {
+    background-color: #f3f4f6; /* Gray-100 */
+}
